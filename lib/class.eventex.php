@@ -104,7 +104,10 @@ abstract class EventEx extends Event
 	// Wrapper for GenericSectionUpdater::updateNamedSections
 	protected function updateNamedSections( $aSections )
 	{
-		return GenericSectionUpdater::updateNamedSections($this->ROOT_ELEMENT, $this->_Parent, $aSections);
+		$class = strtolower(preg_replace('/^event/i', NULL, get_class($this)));
+		if (!class_exists($class)) $class = 'GenericSectionUpdate';
+		
+		return GenericSectionUpdater::updateNamedSections($this->ROOT_ELEMENT, $this->_Parent, $aSections, $class);
 	}
 	
 	// Lazy access to Env keys
@@ -184,13 +187,13 @@ class GenericSectionUpdater
 {
 	private static $_current_section_evaluations = null;
 	 
-	public static function updateNamedSections( $szRootElement, $oParent, $aSectionArray  )
+	public static function updateNamedSections( $szRootElement, $oParent, $aSectionArray, $class = 'GenericSectionUpdate'  )
 	{				
 		// Store the current sections
 		self::$_current_section_evaluations = $aSectionArray;
 		
 		$compiled_result = new XMLElement($szRootElement);			
-		$oSectionUpdater = new GenericSectionUpdate($oParent);
+		$oSectionUpdater = new $class($oParent);
 		
 		$oSectionUpdater->storeRedirect();
 		
